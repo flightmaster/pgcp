@@ -3,10 +3,6 @@ import logging
 from google.appengine.api import urlfetch
 from datetime import datetime
 
-class ReportType():
-    TAF = 'tafs'
-    METAR = 'metars'
-
 
 class WeatherQuery():
 
@@ -44,6 +40,11 @@ class WeatherQuery():
 
     def query_tafs(self, ident, hours=1):
         return self.query_weather(ident, ReportType.TAF, hours)
+
+
+class ReportType():
+    TAF = 'tafs'
+    METAR = 'metars'
 
 
 class ShowForm(webapp2.RequestHandler):
