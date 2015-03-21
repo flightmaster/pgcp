@@ -1,6 +1,7 @@
 import webapp2
 import logging
 from google.appengine.api import urlfetch
+from datetime import datetime
 
 class ReportType():
     TAF = 'tafs'
@@ -31,7 +32,12 @@ class WeatherQuery():
         if len(lines) < 7:
             logging.info("No results for {} in past {} hours".format(ident, hours))
             return None
-        return [l.split(',')[:3] for l in lines[6:]]
+        return [self.parse_line(l) for l in lines[6:]]
+
+    def parse_line(self, line):
+        items = line.split(',')[:3] 
+        items[2] = datetime.strptime(items[2], self.TIME_FORMAT)
+        return items
 
     def query_metars(self, ident, hours=1):
         return self.query_weather(ident, ReportType.METAR, hours)
