@@ -3,7 +3,8 @@ from google.appengine.api import urlfetch
 
 
 class WeatherQuery():
-    QUERY_URL="https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource={}&requestType=retrieve&format=csv&stationString={}&hoursBeforeNow={}"
+    TIME_FORMAT='%Y-%m-%dT%H:%M:%SZ'
+    QUERY_URL='https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource={}&requestType=retrieve&format=csv&stationString={}&hoursBeforeNow={}'
     def query_weather(self, ident, wxtype, hours=1):
         result = urlfetch.fetch(WeatherQuery.QUERY_URL.format(wxtype, ident, hours))
         if result.status_code != 200:
@@ -53,12 +54,13 @@ class ShowForm(webapp2.RequestHandler):
 class SubmitHandler(webapp2.RequestHandler):
     def get(self):
         ident = self.request.get('ident')
-        for metar in WeatherQuery().query_metars(ident):
+        for metar in WeatherQuery().query_metars(ident, hours=4):
             self.response.write(metar)
             self.response.write('<br>')
         for taf in WeatherQuery().query_tafs(ident):
             self.response.write(taf)
             self.response.write('<br>')
+
 
 application = webapp2.WSGIApplication([
     ('/', ShowForm),
