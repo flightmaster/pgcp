@@ -1,12 +1,19 @@
 import webapp2
+import logging
 from google.appengine.api import urlfetch
+
+class ReportType():
+    TAF = 'tafs'
+    METAR = 'metars'
 
 
 class WeatherQuery():
+
     TIME_FORMAT='%Y-%m-%dT%H:%M:%SZ'
     QUERY_URL='https://aviationweather.gov/adds/dataserver_current/httpparam?dataSource={}&requestType=retrieve&format=csv&stationString={}&hoursBeforeNow={}'
-    def query_weather(self, ident, wxtype, hours=1):
-        result = urlfetch.fetch(WeatherQuery.QUERY_URL.format(wxtype, ident, hours))
+
+    def query_weather(self, ident, report_type, hours=1):
+        result = urlfetch.fetch(WeatherQuery.QUERY_URL.format(report_type, ident, hours))
         if result.status_code != 200:
             return None
 
@@ -27,10 +34,10 @@ class WeatherQuery():
         return [l.split(',')[:3] for l in lines[6:]]
 
     def query_metars(self, ident, hours=1):
-        return self.query_weather(ident, 'metars', hours)
+        return self.query_weather(ident, ReportType.METAR, hours)
 
     def query_tafs(self, ident, hours=1):
-        return self.query_weather(ident, 'tafs', hours)
+        return self.query_weather(ident, ReportType.TAF, hours)
 
 
 class ShowForm(webapp2.RequestHandler):
