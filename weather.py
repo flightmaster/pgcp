@@ -12,6 +12,8 @@ class WeatherQuery():
     def query_weather(self, ident, report_type, hours=1):
         result = urlfetch.fetch(WeatherQuery.QUERY_URL.format(report_type, ident, hours))
         if result.status_code != 200:
+            logging.error("Error querying for {}/{}/{} hours".format(ident, report_type, hours))
+            logging.error(result.content)
             return None
 
         """ 
@@ -24,10 +26,11 @@ class WeatherQuery():
             0 results
             <header>
         """
+        logging.debug(result.content)
         lines = result.content.splitlines()
         if len(lines) < 7:
             logging.info("No results for {} in past {} hours".format(ident, hours))
-            return None
+            return []
         return [self.parse_line(l) for l in lines[6:]]
 
     def parse_line(self, line):
