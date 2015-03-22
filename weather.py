@@ -38,10 +38,12 @@ class WeatherQuery():
         items[2] = datetime.strptime(items[2], self.TIME_FORMAT)
         return items
 
-    def query_metars(self, ident, hours=1):
+    def query_metars(self, ident, hours=None):
+        hours = 4 if hours == None else hours
         return self.query_weather(ident, ReportType.METAR, hours)
 
-    def query_tafs(self, ident, hours=1):
+    def query_tafs(self, ident, hours=None):
+        hours = 4 if hours == None else hours
         return self.query_weather(ident, ReportType.TAF, hours)
 
 
@@ -58,14 +60,13 @@ class TafView(webapp2.RequestHandler):
 
 
 class MetarView(webapp2.RequestHandler):
-    def get(self, ident):
-        for metar in WeatherQuery().query_metars(ident, hours=4):
+    def get(self, ident, hours):
+        for metar in WeatherQuery().query_metars(ident, hours):
             self.response.write(metar)
             self.response.write('<br>')
 
 
 application = webapp2.WSGIApplication([
-    ('/', ShowForm),
     ('/(.*)/taf', TafView),
-    ('/(.*)/metar', MetarView),
+    ('/(.*)/metar(?:/([0-9]*))?', MetarView),
 ], debug=True)
