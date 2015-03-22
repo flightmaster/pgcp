@@ -50,36 +50,22 @@ class ReportType():
     METAR = 'metars'
 
 
-class ShowForm(webapp2.RequestHandler):
-    MAIN_PAGE_HTML = """\
-    <html>
-      <body>
-        <p>Enter an identifier:</p>
-        <form action="/submit" method="get">
-          <div><input name="ident" rows="1" cols="10"></input></div>
-          <div><input type="submit" value="ident"></div>
-        </form>
-      </body>
-    </html>
-    """
-
-    def get(self):
-        self.response.headers['Content-Type'] = 'text/html'
-        self.response.write(ShowForm.MAIN_PAGE_HTML)
-    
-
-class SubmitHandler(webapp2.RequestHandler):
-    def get(self):
-        ident = self.request.get('ident')
-        for metar in WeatherQuery().query_metars(ident, hours=4):
-            self.response.write(metar)
-            self.response.write('<br>')
+class TafView(webapp2.RequestHandler):
+    def get(self, ident):
         for taf in WeatherQuery().query_tafs(ident):
             self.response.write(taf)
             self.response.write('<br>')
 
 
+class MetarView(webapp2.RequestHandler):
+    def get(self, ident):
+        for metar in WeatherQuery().query_metars(ident, hours=4):
+            self.response.write(metar)
+            self.response.write('<br>')
+
+
 application = webapp2.WSGIApplication([
     ('/', ShowForm),
-    ('/submit', SubmitHandler),
+    ('/(.*)/taf', TafView),
+    ('/(.*)/metar', MetarView),
 ], debug=True)
